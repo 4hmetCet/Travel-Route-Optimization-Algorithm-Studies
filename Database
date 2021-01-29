@@ -1,0 +1,299 @@
+MSSQL Database Tables and Stored Procedures
+
+USE [ACETINKAYA]
+GO
+
+/****** Object:  Table [dbo].[Point]    Script Date: 29.01.2021 09:53:24 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Point](
+	[UID] [uniqueidentifier] NOT NULL,
+	[RouteUID] [uniqueidentifier] NOT NULL,
+	[Order] [int] NOT NULL,
+	[Name] [nvarchar](200) NOT NULL,
+	[Lat] [real] NOT NULL,
+	[Long] [real] NOT NULL,
+	[EarliestTime] [datetime] NULL,
+	[LatestTime] [datetime] NULL,
+	[Priority] [tinyint] NOT NULL,
+	[PrevPointUID] [uniqueidentifier] NULL,
+	[CreateDate] [datetime] NOT NULL,
+	[DeleteDate] [datetime] NULL,
+ CONSTRAINT [PK_Point] PRIMARY KEY CLUSTERED 
+(
+	[UID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+USE [ACETINKAYA]
+GO
+
+/****** Object:  Table [dbo].[Point]    Script Date: 29.01.2021 09:53:24 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Point](
+	[UID] [uniqueidentifier] NOT NULL,
+	[RouteUID] [uniqueidentifier] NOT NULL,
+	[Order] [int] NOT NULL,
+	[Name] [nvarchar](200) NOT NULL,
+	[Lat] [real] NOT NULL,
+	[Long] [real] NOT NULL,
+	[EarliestTime] [datetime] NULL,
+	[LatestTime] [datetime] NULL,
+	[Priority] [tinyint] NOT NULL,
+	[PrevPointUID] [uniqueidentifier] NULL,
+	[CreateDate] [datetime] NOT NULL,
+	[DeleteDate] [datetime] NULL,
+ CONSTRAINT [PK_Point] PRIMARY KEY CLUSTERED 
+(
+	[UID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+USE [ACETINKAYA]
+GO
+
+/****** Object:  Table [dbo].[User]    Script Date: 29.01.2021 09:54:06 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[User](
+	[UID] [uniqueidentifier] NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Surname] [nvarchar](50) NOT NULL,
+	[Email] [nvarchar](200) NOT NULL,
+	[Password] [nvarchar](50) NOT NULL,
+	[CreateDate] [datetime] NOT NULL,
+	[DeleteDate] [datetime] NULL,
+ CONSTRAINT [PK_Kullanici] PRIMARY KEY CLUSTERED 
+(
+	[UID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+USE [ACETINKAYA]
+GO
+
+/****** Object:  StoredProcedure [dbo].[Insert_Point]    Script Date: 29.01.2021 09:55:02 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Ahmet Çetinkaya
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[Insert_Point]
+	(@RouteUID uniqueidentifier, @Order int, @Name nvarchar(200), @Lat real, @Long real, @EarliestTime datetime, @LatestTime datetime, @Priority tinyint, @PrevPointUID uniqueidentifier)
+
+AS
+BEGIN
+
+INSERT INTO [dbo].[Point]
+           ([UID]
+           ,[RouteUID]
+           ,[Order]
+           ,[Name]
+           ,[Lat]
+           ,[Long]
+           ,[EarliestTime]
+           ,[LatestTime]
+           ,[Priority]
+           ,[PrevPointUID]
+           ,[CreateDate]
+           ,[DeleteDate])
+     VALUES
+           (NEWID()
+           ,@RouteUID
+           ,@Order
+           ,@Name
+           ,@Lat
+           ,@Long
+           ,@EarliestTime
+           ,@LatestTime
+           ,@Priority
+           ,@PrevPointUID
+           ,GETDATE()
+           ,null)
+
+END
+GO
+USE [ACETINKAYA]
+GO
+
+/****** Object:  StoredProcedure [dbo].[Insert_Route]    Script Date: 29.01.2021 09:55:32 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Ahmet ÇETİNKAYA
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[Insert_Route] 
+		(@UserUID uniqueidentifier, @Name nvarchar(50), @Date date, @Bounds nvarchar(max), @TravelType tinyint)
+AS
+BEGIN
+
+INSERT INTO [dbo].[Route]
+           ([UID]
+           ,[UserUID]
+           ,[Name]
+           ,[Date]
+           ,[Bounds]
+           ,[TravelType]
+           ,[CreateDate]
+           ,[DeleteDate])
+     VALUES
+           (NEWID()
+           ,@UserUID
+           ,@Name
+           ,@Date
+           ,@Bounds
+           ,@TravelType
+           ,GETDATE()
+           ,null)
+
+
+END
+GO
+
+USE [ACETINKAYA]
+GO
+
+/****** Object:  StoredProcedure [dbo].[Insert_User]    Script Date: 29.01.2021 09:55:44 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Ahmet ÇETİNKAYA
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[Insert_User] (@Name nvarchar(50), @Surname nvarchar(50), @Email nvarchar(200), @Password nvarchar(50))
+AS
+BEGIN
+
+Declare @usercount int = (Select Count(*) from [User] where Email = @Email);
+if(@usercount > 0)
+BEGIN
+	RAISERROR('Sistemde bu mail adresi kayıtlıdır',16,1);
+	RETURN
+END
+
+INSERT INTO [dbo].[User]
+           ([UID]
+           ,[Name]
+           ,[Surname]
+           ,[Email]
+           ,[Password]
+           ,[CreateDate]
+           ,[DeleteDate])
+     VALUES
+           (NEWID()
+           ,@Name
+           ,@Surname
+           ,@Email
+           ,@Password
+           ,GETDATE()
+           ,NULL)
+
+
+END
+GO
+
+USE [ACETINKAYA]
+GO
+
+/****** Object:  StoredProcedure [dbo].[Select_AllRoutes]    Script Date: 29.01.2021 09:55:54 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Ahmet Çetinkaya
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[Select_AllRoutes]
+AS
+BEGIN
+	Select * from Route where DeleteDate is null
+END
+GO
+
+USE [ACETINKAYA]
+GO
+
+/****** Object:  StoredProcedure [dbo].[Select_PointsByRouteUID]    Script Date: 29.01.2021 09:56:06 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Ahmet ÇETİNKAYA
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[Select_PointsByRouteUID] (@RouteUID uniqueidentifier)
+AS
+BEGIN
+		Select * from Point where RouteUID = @RouteUID and DeleteDate is null
+END
+GO
+
+USE [ACETINKAYA]
+GO
+
+/****** Object:  StoredProcedure [dbo].[Select_UserByEmailPassword]    Script Date: 29.01.2021 09:56:18 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Ahmet ÇETİNKAYA
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[Select_UserByEmailPassword] (@Email nvarchar(200), @Password nvarchar(50))
+AS
+BEGIN
+	Select * from [User]
+		WHERE Email =@Email and Password = @Password and DeleteDate is null
+
+		
+END
+GO
+
+
